@@ -24,8 +24,10 @@ const MONGO_COLLECTION = process.env.MONGODB_COLLECTION_NAME || "raw_payloads";
 let mongoClient: MongoClient | null = null;
 
 async function getCollection(): Promise<any> {
-  if (!mongoClient) {
-    mongoClient = new MongoClient(MONGO_URI);
+  if (!mongoClient || !mongoClient.topology?.isConnected()) {
+    mongoClient = new MongoClient(MONGO_URI, {
+      serverSelectionTimeoutMS: 5000,
+    });
     await mongoClient.connect();
     console.log("[MongoDB] Conectado.");
   }
